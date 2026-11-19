@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Coptic Orthodox Daily</title>
+<meta name="description" content="Coptic Orthodox calendar Nov 2026 – Dec 2027: Coptic dates, feasts, Synaxarium saints, Katameros readings and Agpeya prayers in English, Arabic and Coptic.">
+<meta name="theme-color" content="#5b1a12">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Coptic Daily">
+<meta name="application-name" content="Coptic Daily">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon-180.png">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header id="top">
+  <div class="apptitle"><strong>Coptic Orthodox Daily</strong><span>Developed by ZB</span></div>
+  <div class="bar">
+    <button id="btnToday" class="pill" type="button">Today</button>
+    <button id="btnPrayers" class="pill" type="button">Prayers</button>
+    <div class="seg" id="langSeg" role="group" aria-label="Language">
+      <button type="button" data-lang="en">EN</button><button type="button" data-lang="ar" lang="ar">عربي</button><button type="button" data-lang="both">EN+ع</button>
+    </div>
+    <button id="btnSearch" class="icon" type="button" aria-label="Search saints">&#x1F50D;&#xFE0E;</button>
+    <button id="btnMenu" class="icon" type="button" aria-label="Settings">&#9881;&#xFE0E;</button>
+  </div>
+  <nav class="dvnav">
+    <button id="btnMonth" class="pill" type="button" aria-label="Back to month view"><span id="btnMonthArr">&#8249;</span> <span id="btnMonthLbl">Month</span></button>
+  </nav>
+  <nav class="mvnav" hidden>
+    <button id="mvPrev" class="arrow" type="button" aria-label="Previous month">&#8249;</button>
+    <div class="mvTitle"><div id="mvTitle"></div><div id="mvSub"></div></div>
+    <button id="mvNext" class="arrow" type="button" aria-label="Next month">&#8250;</button>
+  </nav>
+  <nav class="datenav">
+    <button id="btnPrev" class="arrow" type="button" aria-label="Previous day">&#8249;</button>
+    <button id="btnCal" class="datebtn" type="button" aria-label="Back to month view"><span id="navDate"></span><span id="navOld"></span></button>
+    <button id="btnNext" class="arrow" type="button" aria-label="Next day">&#8250;</button>
+  </nav>
+  <nav class="pvnav" hidden>
+    <button id="btnBack" class="pill" type="button">&#8249; Calendar</button>
+    <span id="pvTitle">Prayers</span>
+  </nav>
+</header>
+<main id="day" aria-live="polite"><p class="loading">Loading…</p></main>
+<main id="prayers" hidden></main>
+<main id="month" hidden></main>
+<footer id="foot"></footer>
+
+<div id="searchPanel" class="panel" hidden>
+  <div class="sheet tall">
+    <div class="sheethead">
+      <input id="q" type="search" autocomplete="off" placeholder="Search saints / ابحث عن القديسين">
+      <button type="button" class="pill" data-close>Close</button>
+    </div>
+    <div id="results"></div>
+  </div>
+</div>
+
+<div id="menuPanel" class="panel" hidden>
+  <div class="sheet">
+    <h2 id="mTitle">Settings</h2>
+    <div class="row"><span id="mFont">Text size</span>
+      <span class="seg"><button type="button" id="fsDown" aria-label="Smaller text">A−</button><button type="button" id="fsReset">A</button><button type="button" id="fsUp" aria-label="Larger text">A+</button></span></div>
+    <div class="row"><span id="mTheme">Appearance</span>
+      <span class="seg" id="themeSeg"><button type="button" data-theme="auto">Auto</button><button type="button" data-theme="light">☀︎</button><button type="button" data-theme="dark">☾</button></span></div>
+    <div class="row"><span id="mCop">Coptic text</span>
+      <span class="seg" id="copSeg"><button type="button" data-cop="1">Ⲁ̀ⲙⲏⲛ ✓</button><button type="button" data-cop="0">✕</button></span></div>
+    <div class="row"><span id="mExpand">Sections</span>
+      <span class="seg"><button type="button" id="openAll">Open all</button><button type="button" id="closeAll">Close all</button></span></div>
+    <details class="about"><summary id="mAbout">About this calendar · حول هذا التقويم</summary><div id="aboutBody"></div><p class="small credit">Coptic Orthodox Daily · Developed by ZB</p></details>
+    <p class="small" id="swStatus"></p>
+    <button type="button" class="pill" data-close>Close</button>
+  </div>
+</div>
+<div id="ttsBar" hidden role="region" aria-label="Read aloud">
+  <div class="tr">
+    <button type="button" class="tb main" id="ttsPlay" aria-label="Play">▶</button>
+    <button type="button" class="tb" id="ttsStop" aria-label="Stop">■</button>
+    <span id="ttsNow"></span>
+    <button type="button" class="tb" id="ttsClose" aria-label="Close read-aloud">✕</button>
+  </div>
+  <div class="tr">
+    <select id="ttsScope" aria-label="What to read"></select>
+    <select id="ttsLang" aria-label="Reading language"></select>
+    <select id="ttsRate" aria-label="Speed"><option value="0.75">0.75×</option><option value="0.9">0.9×</option><option value="1">1×</option><option value="1.1">1.1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option></select>
+  </div>
+  <div class="tr" id="rowVEn"><span class="small">EN</span><span class="grow"><select id="ttsVoiceEn" aria-label="English voice"></select></span></div>
+  <div class="tr" id="rowVAr"><span class="small" lang="ar">عربي</span><span class="grow"><select id="ttsVoiceAr" aria-label="Arabic voice"></select></span></div>
+  <div id="ttsNote"></div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>

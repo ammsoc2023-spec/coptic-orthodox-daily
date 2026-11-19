@@ -1,0 +1,20 @@
+{
+  "id": "./?app=coptic-orthodox-daily",
+  "name": "Coptic Orthodox Daily - Developed by ZB",
+  "short_name": "Coptic Daily",
+  "description": "Coptic Orthodox calendar, 11 Nov 2026 – 31 Dec 2027: Coptic dates, feasts, Synaxarium saints, Katameros readings and Agpeya morning and evening prayers in English, Arabic and Coptic.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#5b1a12",
+  "theme_color": "#5b1a12",
+  "lang": "en",
+  "dir": "auto",
+  "icons": [
+    {"src": "icons/icon-192.png","sizes": "192x192","type": "image/png","purpose": "any"},
+    {"src": "icons/icon-512.png","sizes": "512x512","type": "image/png","purpose": "any"},
+    {"src": "icons/icon-maskable-512.png","sizes": "512x512","type": "image/png","purpose": "maskable"},
+    {"src": "icons/apple-touch-icon-180.png","sizes": "180x180","type": "image/png"}
+  ]
+}
