@@ -237,3 +237,55 @@ html[dir=rtl] .mgrid button.g:after{right:auto;left:3px}
 :root[data-theme=dark] .mgrid .o.c1{color:var(--gold)}
 @media (prefers-color-scheme:dark){:root[data-theme=auto] .mgrid .o.c1{color:var(--gold)}}
 .mgrid .o{max-width:100%;overflow:hidden;text-overflow:ellipsis}
+
+/* ---------- Bible tabs: at the end of the first header row (RTL puts them on the left); row 2 is nav only.
+   The Bible sites load in an iframe when opened; no Bible text is copied or cached. ---------- */
+.bar{flex-wrap:nowrap}
+.bar .pill{white-space:nowrap}
+.biblePair{display:inline-flex;align-items:center;gap:4px;flex-shrink:0}
+.biblePair .pill{padding:4px 8px;font-size:13px}
+.bpill.on{background:#fff;color:var(--accent);font-weight:700}
+@media (max-width:600px){.bar{gap:2px;padding:8px 3px 4px}.bar .pill{padding:3px 5px;font-size:12px}.bar .seg{flex-shrink:0}.bar .seg button{padding:3px 4px;font-size:11px}.bar .icon{padding:2px 1px;font-size:16px}.biblePair{gap:2px}.biblePair .pill{padding:3px 5px;font-size:12px}}
+@media (max-width:374px){.bar{gap:2px;padding:8px 1px 4px}.bar .pill{padding:3px 3px;font-size:12px}.bar .seg button{padding:3px 2px;font-size:11px}.bar .icon{padding:2px 0;font-size:16px}.biblePair{gap:1px}.biblePair .pill{padding:3px 3px;font-size:11px}}
+.bvnav{display:flex;align-items:center;gap:8px;padding:2px 10px 8px;min-width:0}
+.bvnav[hidden]{display:none}
+#bvTitle{flex:1;text-align:center;font-weight:700;font-size:16px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#bibleExt{color:#fff;font-size:13px;text-decoration:underline;white-space:nowrap;opacity:.95}
+#bibleExt:hover,#bibleExt:focus{opacity:1}
+body.bv .datenav,body.bv .dvnav,body.bv .mvnav,body.bv .pvnav,body.bv #foot,body.bv #ttsBar{display:none}
+body.bv{display:flex;flex-direction:column;min-height:100dvh;height:100dvh;overflow:hidden;padding-bottom:0!important}
+body.bv header#top{flex:none}
+body.bv #bible{display:flex;flex-direction:column;flex:1;width:100%;max-width:none;margin:0;padding:0;min-height:0}
+#bibleFrame{flex:1;width:100%;border:0;min-height:0;background:var(--bg)}
+#bibleOffline,#bibleFallback{padding:2.2em 1.3em 2em;text-align:center;color:var(--fg);max-width:28rem;margin:0 auto}
+#bibleOffline p,#bibleFallback p{margin:.6em 0;line-height:1.45}
+#bibleFallback a{color:var(--accent);font-weight:700}
+#bibleOffline[hidden],#bibleFallback[hidden],#bibleFrame[hidden]{display:none}
+/* three Bible tabs in the Coptic app: a little tighter on narrow phones so the language switch is never clipped */
+.bar .seg{flex-shrink:0}
+@media (max-width:600px){.bar{gap:1px;padding:8px 1px 4px}.bar .pill{padding:3px 3px;font-size:12px}.bar .seg button{padding:3px 3px;font-size:11px}.bar .icon{padding:2px 0;font-size:16px}.biblePair{gap:1px}.biblePair .pill{padding:3px 3px;font-size:11px}}
+
+/* ---------- two header rows (as in Macedonian Orthodox Daily): row 1 buttons + Bible tabs, row 2 navigation only ---------- */
+.row2{display:flex;align-items:center;flex-wrap:nowrap;gap:4px;padding:0 4px 6px;min-width:0}
+.row2>nav{min-width:0}
+.row2>nav[hidden]{display:none}
+.row2 .datenav{flex:1;padding:0;min-width:0}
+.row2 .dvnav{flex:none;padding:0}
+.row2 .mvnav{flex:1;padding:0 0 2px}
+.row2 .pvnav,.row2 .bvnav{flex:1;padding:2px 6px}
+#navDate{white-space:nowrap}
+.datebtn{min-width:0}
+body:not(.mv):not(.pv):not(.bv) .datenav .arrow{min-width:44px;padding:0 10px 4px}
+@media (max-width:600px){
+  .row2{gap:2px;padding:0 4px 6px}
+  .dvnav .pill{font-size:13px;padding:3px 8px}
+  body:not(.mv):not(.pv):not(.bv) .datenav .arrow{min-width:36px;padding:0 4px 2px;font-size:30px}
+  body:not(.mv):not(.pv):not(.bv) #navDate{font-size:14px}
+  body:not(.mv):not(.pv):not(.bv) #navOld{font-size:11px}
+}
+@media (max-width:374px){
+  .row2{gap:2px;padding:0 3px 6px}
+  .dvnav .pill{font-size:12px;padding:3px 6px}
+  body:not(.mv):not(.pv):not(.bv) .datenav .arrow{min-width:30px;padding:0 2px 2px;font-size:28px}
+  body:not(.mv):not(.pv):not(.bv) #navDate{font-size:13px}
+}
