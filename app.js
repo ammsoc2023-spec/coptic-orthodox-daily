@@ -475,13 +475,30 @@ const TTS=(function(){
     window.addEventListener('pageshow',()=>{ if(want) acquire() });
     return {on,off,get held(){return !!((lock&&!lock.released)||(vid&&!vid.paused))},get wanted(){return want},get mode(){return wlUsable()?'wakelock':'video'}};
   })();
-  let scope=LS.get('tts.scope','all'), pscope=LS.get('tts.pscope','all'), tlang=LS.get('tts.lang',null), rate=+LS.get('tts.rate',1);
+  let scope=LS.get('tts.scope','all'), pscope=LS.get('tts.pscope','all'), tlang=LS.get('tts.lang',null), rate=+LS.get('tts.rate',0.9);
   const ARPREF=['ar-eg','ar-sa','ar-ae','ar-jo','ar-lb'];
   const vl=v=>(v.lang||'').replace('_','-').toLowerCase();
-  function voices(){try{return ok?S.getVoices()||[]:[]}catch(e){return []}}
+  function voices(){try{return ok?(S.getVoices()||[]).filter(v=>!NOVELTY.test(v.name||'')):[]}catch(e){return []}}
+
+  /* ---- voice quality (most natural first). iPhone/iPad/Mac: downloaded "Premium" and "Enhanced" voices are Apple's
+     neural voices and sound far less robotic than the default "compact" ones; Android/Chrome/Edge: network/"Natural" voices.
+     Novelty voices (Bells, Bubbles, Zarvox ...) are hidden; old formant voices (Eloquence: Eddy, Flo, Grandma ...; Fred, Kathy ...) go last. */
+  const NOVELTY=/^(Albert|Bad News|Bahh|Bells|Boing|Bubbles|Cellos|Deranged|Good News|Hysterical|Jester|Organ|Pipe Organ|Superstar|Trinoids|Whisper|Wobble|Zarvox)\b/i;
+  const LEGACY=/^(Eddy|Flo|Grandma|Grandpa|Reed|Rocko|Sandy|Shelley|Fred|Junior|Kathy|Ralph|Princess|Agnes|Bruce|Vicki|Victoria)\b/i;
+  const GOODV=/^(Karen|Lee|Catherine|Matilda|Gordon|Daniel|Serena|Kate|Stephanie|Arthur|Martha|Jamie|Oliver|Samantha|Ava|Zoe|Evan|Nathan|Allison|Susan|Tom|Joelle|Noelle|Nicky|Majed|Maged|Tarik|Laila|Hamed|Mariam|Milena|Daria|Katya|Yuri|Google|Microsoft)/i;
+  const vtier=v=>{const n=(v.name||'')+' '+(v.voiceURI||''); return /premium/i.test(n)?2:/enhanced|neural|natural|network|wavenet/i.test(n)?1:0};
+  function vq(v){
+    const nm=v.name||'', n=nm+' '+(v.voiceURI||''); let s=[0,200,300][vtier(v)];
+    if(LEGACY.test(nm)||/eloquence|speech\.synthesis/i.test(n)) s-=150;
+    if(GOODV.test(nm)) s+=40;
+    if(/compact/i.test(n)) s-=5;
+    return s;
+  }
+  const isApple=/iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent||'');
+  const byQ=(pr)=>(a,b)=>{const r=x=>{const i=pr.indexOf(vl(x));return i<0?pr.length:i}; return (vq(b)-r(b)*15)-(vq(a)-r(a)*15)};
   function listFor(L){
     const vs=voices(), pr=L==='en'?['en-au','en-gb','en-us']:ARPREF, base=L==='en'?'en':'ar';
-    return vs.filter(v=>vl(v).split('-')[0]===base).sort((a,b)=>{const ia=pr.indexOf(vl(a)),ib=pr.indexOf(vl(b));return (ia<0?9:ia)-(ib<0?9:ib)});
+    return vs.filter(v=>vl(v).split('-')[0]===base).sort(byQ(pr));
   }
   function voiceFor(L){const l=listFor(L), saved=LS.get('tts.voice.'+L,null); return l.find(v=>v.voiceURI===saved)||l[0]||null}
   function effLang(){return tlang||(lang==='both'?'both':lang)}
@@ -561,7 +578,7 @@ const TTS=(function(){
     if(it.L==='ar'&&!v){ st.i++; return speakNext() }
     const u=new SpeechSynthesisUtterance(it.t);
     if(v){u.voice=v;u.lang=v.lang} else u.lang=it.L==='en'?'en-AU':'ar-EG';
-    u.rate=rate;
+    u.rate=rate; u.pitch=1;
     u.onend=()=>{ if(my!==st.token) return; st.i++; speakNext() };
     u.onerror=e=>{ if(my!==st.token) return; if(e&&(e.error==='interrupted'||e.error==='canceled')) return; st.i++; speakNext() };
     highlight(it); status();
@@ -571,7 +588,8 @@ const TTS=(function(){
     const u=ui(); $('#ttsPlay').textContent=st.playing&&!st.paused?'❚❚':'▶'; $('#ttsPlay').setAttribute('aria-label',st.playing&&!st.paused?'Pause':'Play');
     let s=''; if(st.playing){ let lab; if(st.date==='prayers') lab=u.prayers; else { const d=new Date(st.date+'T00:00:00Z'); lab=`${d.getUTCDate()} ${(lang==='ar'?MON_AR:MON_EN)[d.getUTCMonth()]}` } s=(st.paused?u.paused:u.reading)+` · ${lab} · ${Math.min(st.i+1,st.q.length)}/${st.q.length}` }
     $('#ttsNow').textContent=s; $$('.speak').forEach(b=>b.classList.toggle('on',st.playing&&st.date===ctx()));
-    $('#ttsNote').textContent=note();
+    $('#ttsNote').textContent=note(); $('#ttsTip').textContent=tip(); $('#ttsTip').hidden=!$('#ttsTip').textContent;
+    if(!$('#ttsBar').hidden) document.body.style.paddingBottom=$('#ttsBar').offsetHeight+'px';
   }
   // Wake lock is asked for synchronously inside the tap, before any await (keeps the user gesture for the iOS video fallback).
   function start(){ Awake.on(); return start0().catch(e=>{ if(!st.playing||st.paused) Awake.off(); throw e }) }
@@ -586,10 +604,25 @@ const TTS=(function(){
   function resume(){ st.paused=false; st.token++; Awake.on(); speakNext() }
   function stop(finished){ st.token++; Awake.off(); try{S.cancel()}catch(e){} st.playing=false; st.paused=false; st.i=0; clearHl(); status(); if(finished===true) $('#ttsNow').textContent=ui().done }
   function restartChunk(){ if(st.playing&&!st.paused){ st.token++; try{S.cancel()}catch(e){} speakNext() } }
+
+  // Tip shown under the voice pickers when only the standard (robotic-sounding) voices are in use on an Apple device.
+  function tip(){
+    if(!isApple) return ''; const L=effLang(), need=(L==='both'?['en','ar']:[L]).filter(x=>{const v=voiceFor(x); return v&&!vtier(v)});
+    if(!need.length) return ''; const A=lang==='ar';
+    return A?'لصوت أكثر طبيعيّة: على الآيفون افتح الإعدادات ← تسهيلات الاستخدام ← القراءة والتحدّث (في iOS 18 وما قبله: المحتوى المنطوق) ← الأصوات ← العربيّة أو الإنكليزيّة، ثمّ اختر صوتًا ونزّل نسخته «المحسّنة» (Enhanced) أو «المميّزة» (Premium)، ثمّ أعد فتح التطبيق واختره هنا.'
+            :'Tip for a more natural voice: on your iPhone open Settings → Accessibility → Read & Speak (on iOS 18 and earlier: Spoken Content) → Voices → English or Arabic, tap a voice and download its Enhanced or Premium version, then reopen the app and pick it here.';
+  }
+  const SAMPLE={en:'Glory to God for all things. Today we remember the saints of the day.',ar:'المجد لله على كل شيء. نعيّد اليوم لقدّيسي هذا اليوم.'};
+  function preview(L){
+    if(st.playing&&!st.paused){ restartChunk(); return }
+    const v=voiceFor(L); if(!v) return; try{S.cancel()}catch(e){}
+    const u=new SpeechSynthesisUtterance(SAMPLE[L]); u.voice=v; u.lang=v.lang; u.rate=rate; u.pitch=1;
+    try{ S.speak(u) }catch(e){}
+  }
   function fillVoices(){
     [['en','#ttsVoiceEn'],['ar','#ttsVoiceAr']].forEach(([L,id])=>{
       const l=listFor(L), sel=$(id), cv=voiceFor(L);
-      sel.innerHTML=l.length?l.map(v=>`<option value="${esc(v.voiceURI)}"${cv&&v.voiceURI===cv.voiceURI?' selected':''}>${esc(v.name)} (${esc(v.lang)})</option>`).join('')
+      sel.innerHTML=l.length?l.map(v=>`<option value="${esc(v.voiceURI)}"${cv&&v.voiceURI===cv.voiceURI?' selected':''}>${esc(v.name)} (${esc(v.lang)})${vtier(v)&&!/premium|enhanced/i.test(v.name||'')?' ★':''}</option>`).join('')
                             :`<option value="">${L==='en'?'—':(lang==='ar'?'لا يوجد صوت عربي':'no Arabic voice available')}</option>`;
     });
     const L=effLang(); $('#rowVEn').hidden=L==='ar'; $('#rowVAr').hidden=L==='en';
@@ -611,6 +644,7 @@ const TTS=(function(){
     $('#ttsScope').onchange=e=>{ if(prayersOpen){ pscope=e.target.value; LS.set('tts.pscope',pscope) } else { scope=e.target.value; LS.set('tts.scope',scope) } if(st.playing) start() };
     $('#ttsLang').onchange=e=>{ tlang=e.target.value; LS.set('tts.lang',tlang); fillVoices(); if(st.playing) start() };
     $('#ttsRate').onchange=e=>{ rate=+e.target.value; LS.set('tts.rate',rate); restartChunk() };
+    $('#ttsPrevEn').onclick=()=>preview('en'); $('#ttsPrevAr').onclick=()=>preview('ar');
     $('#ttsVoiceEn').onchange=e=>{ LS.set('tts.voice.en',e.target.value); restartChunk() };
     $('#ttsVoiceAr').onchange=e=>{ LS.set('tts.voice.ar',e.target.value); status(); restartChunk() };
     labels();
@@ -621,7 +655,7 @@ const TTS=(function(){
     start();
   }
   function refreshDay(){ if(st.playing&&!st.paused) highlight(st.q[st.i]); status() }
-  return {ok,init,stop,labels,_awake:Awake,fromDay,refreshDay,_state:st,_build:build,_buildPrayers:buildPrayers,_heading:heading,_chunks:chunks,_note:note,_voiceFor:voiceFor};
+  return {ok,init,stop,labels,_awake:Awake,fromDay,refreshDay,_state:st,_build:build,_buildPrayers:buildPrayers,_heading:heading,_chunks:chunks,_note:note,_voiceFor:voiceFor,_listFor:listFor,_vq:vq,_tip:tip};
 })();
 window.COD_TTS=TTS;
 
