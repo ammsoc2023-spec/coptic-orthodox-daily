@@ -291,3 +291,6 @@ body:not(.mv):not(.pv):not(.bv) .datenav .arrow{min-width:44px;padding:0 10px 4p
   body:not(.mv):not(.pv):not(.bv) .datenav .arrow{min-width:30px;padding:0 2px 2px;font-size:28px}
   body:not(.mv):not(.pv):not(.bv) #navDate{font-size:13px}
 }
+
+/* per-reading "who speaks to whom" lines before the commentary */
+.text[data-k$=":com0"]{white-space:pre-line}
