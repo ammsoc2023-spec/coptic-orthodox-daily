@@ -900,7 +900,7 @@ function init(){
     if(mm){ const t=view==='day'?cur.slice(0,7):mm; if(bibleOpen||prayersOpen||view!=='month'||mvYM!==t) showMonth(t,{noHash:t===mm}); return }
     if(valid(h)){ if(view!=='day'||prayersOpen||bibleOpen||h!==cur) show(h); return }
     if(!h) showMonth(cur.slice(0,7),{noHash:true}) });
-  $('#foot').innerHTML=mix('Sources: Coptic Orthodox Katameros and Synaxarium (Arabic Van Dyck text as read in the Coptic Church, English NKJV; Arabic Synaxarium and its published English translation) via katameros.app · Agpeya: St-Takla.org (English, العربية) and the trilingual Book of Agpeya, St Bishoy Coptic Orthodox Church, Toronto (ⲙⲉⲧⲣⲉⲙⲛ̀ⲭⲏⲙⲓ) · day icons from Wikimedia Commons (public domain / free licences, credited under each icon). Works offline. No tracking.');
+  $('#foot').innerHTML='<p class="copy" dir="ltr">Copyright © 2026 ZB</p><p>'+mix('Sources: Coptic Orthodox Katameros and Synaxarium (Arabic Van Dyck text as read in the Coptic Church, English NKJV; Arabic Synaxarium and its published English translation) via katameros.app · Agpeya: St-Takla.org (English, العربية) and the trilingual Book of Agpeya, St Bishoy Coptic Orthodox Church, Toronto (ⲙⲉⲧⲣⲉⲙⲛ̀ⲭⲏⲙⲓ) · day icons from Wikimedia Commons (public domain / free licences, credited under each icon). Works offline. No tracking.')+'</p>';
   // On launch the app opens on the current month; deep links (#YYYY-MM-DD, #YYYY-MM, #prayers, #bible, #bible-ar, #bible-cop) still work.
   const h=location.hash.slice(1); cur=todayInRange(); updateNav();
   if(valid(h)) show(h); else { showMonth(vmonth(h)||cur.slice(0,7)); if(h==='prayers') openPrayers(false); else if(BIBLE_HASH[h]) openBible(BIBLE_HASH[h],false) }
