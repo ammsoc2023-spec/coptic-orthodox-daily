@@ -145,7 +145,7 @@ html[dir=rtl] #results .res{text-align:right}
 
 /* credit + prayers view (as in Macedonian Orthodox Daily) */
 .apptitle span{font-size:.72rem;opacity:.8;font-style:italic}
-.apptitle .devline{font-size:.7rem;opacity:.9;font-style:normal;letter-spacing:.02em;margin-bottom:1px}
+.apptitle .devline{font-size:.7rem;opacity:.9;font-style:normal;letter-spacing:.02em;margin-top:1px}
 footer .copy{text-align:center;margin:0 0 .7em}
 .credit{text-align:center;opacity:.8;font-style:italic;margin-top:10px}
 .pvnav{display:flex;align-items:center;gap:10px;padding:2px 10px 8px}
